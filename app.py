@@ -24,21 +24,25 @@ def hook():
         print("unfurling...")
         unfurls = {}
         for link in request.json["event"]["links"]:
-            url = link["url"]
-            if url.startswith(DOKUWIKI_BASE_URL):
+            try:
+                url = link["url"]
+                if url.startswith(DOKUWIKI_BASE_URL):
+                    continue
+                print(url)
+                html_res = requests.get(url, headers={
+                    "Authorization": DOKUWIKI_AUTH,
+                    "User-Agent": "dokuwiki-slack-preview/0.0.0 (context: fetch-html)",
+                })
+                html_res.raise_for_status()
+                tree = html.fromstring(html_res.content)
+                unfurls[url] = {
+                    "title": tree.xpath("//title/text()")[0],
+                    "title_link": url,
+                }
+            except Exception as e:
+                print(e)
+                unfurls[url] = {"title": "Failed to unfurl"}
                 continue
-            print(url)
-            html_res = requests.get(url, headers={
-                "Authorization": DOKUWIKI_AUTH,
-                "User-Agent": "dokuwiki-slack-preview/0.0.0 (context: fetch-html)",
-            })
-            html_res.raise_for_status()
-            tree = html.fromstring(html_res.content)
-            
-            unfurls[url] = {
-                "title": tree.xpath("//title/text()")[0],
-                "title_link": url,
-            }
         requests.post("https://slack.com/api/chat.unfurl", json={
             "channel": request.json["event"]["channel"],
             "ts": request.json["event"]["message_ts"],
