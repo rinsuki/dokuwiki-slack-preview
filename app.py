@@ -1,9 +1,12 @@
 from flask import Flask, request
 import requests
 import os
+from lxml import html
 
 SLACK_API_TOKEN = os.environ["SLACK_API_TOKEN"]
 SLACK_VERIFY_TOKEN = os.environ["SLACK_VERIFY_TOKEN"]
+DOKUWIKI_BASE_URL = os.environ["DOKUWIKI_BASE_URL"]
+DOKUWIKI_AUTH = os.environ["DOKUWIKI_AUTH"]
 
 app = Flask(__name__)
 
@@ -22,15 +25,19 @@ def hook():
         unfurls = {}
         for link in request.json["event"]["links"]:
             url = link["url"]
+            if url.startswith(DOKUWIKI_BASE_URL):
+                continue
             print(url)
+            html_res = requests.get(url, headers={
+                "Authorization": DOKUWIKI_AUTH,
+                "User-Agent": "dokuwiki-slack-preview/0.0.0 (context: fetch-html)",
+            })
+            html_res.raise_for_status()
+            tree = html.fromstring(html_res.content)
+            
             unfurls[url] = {
-                "blocks": [{
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "test"
-                    }
-                }]
+                "title": tree.xpath("//title/text()")[0],
+                "title_link": url,
             }
             requests.post("https://slack.com/api/chat.unfurl", json={
                 "channel": request.json["event"]["channel"],
