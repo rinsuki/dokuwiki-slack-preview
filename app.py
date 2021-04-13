@@ -27,6 +27,7 @@ def hook():
             try:
                 url = link["url"]
                 if url.startswith(DOKUWIKI_BASE_URL):
+                    print("not started from base url", url, DOKUWIKI_BASE_URL)
                     continue
                 print(url)
                 html_res = requests.get(url, headers={
