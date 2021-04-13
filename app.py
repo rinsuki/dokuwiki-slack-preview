@@ -39,13 +39,13 @@ def hook():
                 "title": tree.xpath("//title/text()")[0],
                 "title_link": url,
             }
-            requests.post("https://slack.com/api/chat.unfurl", json={
-                "channel": request.json["event"]["channel"],
-                "ts": request.json["event"]["message_ts"],
-                "unfurls": unfurls,
-            }, headers={
-                "Authorization": "Bearer {}".format(SLACK_API_TOKEN),
-            }).raise_for_status()
+        requests.post("https://slack.com/api/chat.unfurl", json={
+            "channel": request.json["event"]["channel"],
+            "ts": request.json["event"]["message_ts"],
+            "unfurls": unfurls,
+        }, headers={
+            "Authorization": "Bearer {}".format(SLACK_API_TOKEN),
+        }).raise_for_status()
         return "hummm"
     else:
         print("unknown type", request_type)
