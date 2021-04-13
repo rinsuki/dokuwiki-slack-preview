@@ -51,6 +51,7 @@ def hook():
             "unfurls": unfurls,
         }, headers={
             "Authorization": "Bearer {}".format(SLACK_API_TOKEN),
+            "Content-Type": "application/json; charset=utf-8"
         })
         print("Slack Response", slack_res.text)
         slack_res.raise_for_status()
