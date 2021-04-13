@@ -45,13 +45,15 @@ def hook():
                 print(e)
                 unfurls[url] = {"attachments": [{"title": "Failed to unfurl"}]}
                 continue
-        requests.post("https://slack.com/api/chat.unfurl", json={
+        slack_res = requests.post("https://slack.com/api/chat.unfurl", json={
             "channel": request.json["event"]["channel"],
             "ts": request.json["event"]["message_ts"],
             "unfurls": unfurls,
         }, headers={
             "Authorization": "Bearer {}".format(SLACK_API_TOKEN),
-        }).raise_for_status()
+        })
+        print("Slack Response", slack_res.text)
+        slack_res.raise_for_status()
         return "hummm"
     else:
         print("unknown type", request_type)
