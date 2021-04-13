@@ -36,12 +36,14 @@ def hook():
                 html_res.raise_for_status()
                 tree = html.fromstring(html_res.content)
                 unfurls[url] = {
-                    "title": tree.xpath("//title/text()")[0],
-                    "title_link": url,
+                    "attachments": [{
+                        "title": tree.xpath("//title/text()")[0],
+                        "title_link": url,
+                    }]
                 }
             except Exception as e:
                 print(e)
-                unfurls[url] = {"title": "Failed to unfurl"}
+                unfurls[url] = {"attachments": [{"title": "Failed to unfurl"}]}
                 continue
         requests.post("https://slack.com/api/chat.unfurl", json={
             "channel": request.json["event"]["channel"],
