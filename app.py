@@ -37,7 +37,7 @@ def hook():
                 "ts": request.json["event"]["message_ts"],
                 "unfurls": unfurls,
             }, headers={
-                "Authorization": "Bearer {}".format(SLACK_TOKEN),
+                "Authorization": "Bearer {}".format(SLACK_API_TOKEN),
             }).raise_for_status()
         return "hummm"
     else:
